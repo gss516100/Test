@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install backend dependencies
+        working-directory: stock-manager-backend
+        run: npm install
+
+      - name: Build backend
+        working-directory: stock-manager-backend
+        run: npm run build
+
+      - name: Run backend tests
+        working-directory: stock-manager-backend
+        run: npm test
+
+      - name: Install frontend dependencies
+        working-directory: stock-manager-frontend
+        run: npm install
+
+      - name: Build frontend
+        working-directory: stock-manager-frontend
+        run: npm run build
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install AI dependencies
+        working-directory: stock-manager-ai
+        run: pip install -r requirements.txt
+
+      - name: Run AI tests
+        working-directory: stock-manager-ai
+        run: python -m unittest discover tests
+
+      - name: Validate AI service syntax
+        working-directory: stock-manager-ai
+        run: python -m compileall app
+
+      - name: Validate Docker Compose
+        run: docker compose config

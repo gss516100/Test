@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-manager-postgres
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stock-manager-postgres
+  template:
+    metadata:
+      labels:
+        app: stock-manager-postgres
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: stockmanager
+            - name: POSTGRES_USER
+              value: stockmanager
+            - name: POSTGRES_PASSWORD
+              value: stockmanager
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stock-manager-postgres
+spec:
+  selector:
+    app: stock-manager-postgres
+  ports:
+    - port: 5432
+      targetPort: 5432

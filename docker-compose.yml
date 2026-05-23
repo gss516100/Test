@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: stockmanager
+      POSTGRES_USER: stockmanager
+      POSTGRES_PASSWORD: stockmanager
+    ports:
+      - '5432:5432'
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+
+  mailhog:
+    image: mailhog/mailhog
+    ports:
+      - '1025:1025'
+      - '8025:8025'
+
+  backend:
+    build: ./stock-manager-backend
+    environment:
+      DATABASE_URL: postgres://stockmanager:stockmanager@postgres:5432/stockmanager
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: local-dev-secret
+      GOOGLE_CLIENT_ID: placeholder
+      GOOGLE_CLIENT_SECRET: placeholder
+      SMTP_HOST: mailhog
+      SMTP_PORT: 1025
+      SMTP_USER: ''
+      SMTP_PASS: ''
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - '4000:4000'
+
+  ai:
+    build: ./stock-manager-ai
+    ports:
+      - '8000:8000'
+
+  frontend:
+    build: ./stock-manager-frontend
+    environment:
+      VITE_API_BASE: http://localhost:4000/api
+    depends_on:
+      - backend
+    ports:
+      - '3000:3000'

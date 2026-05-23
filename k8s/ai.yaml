@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-manager-ai
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: stock-manager-ai
+  template:
+    metadata:
+      labels:
+        app: stock-manager-ai
+    spec:
+      containers:
+        - name: ai
+          image: stock-manager-ai:latest
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stock-manager-ai
+spec:
+  selector:
+    app: stock-manager-ai
+  ports:
+    - port: 80
+      targetPort: 8000
